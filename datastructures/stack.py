@@ -4,6 +4,10 @@ class Stack:
     def __init__(self):
         self.array = []
 
+
+    def __len__(self):
+        return len(self.array)
+
     def size(self) -> int:
         return len(self.array)
 

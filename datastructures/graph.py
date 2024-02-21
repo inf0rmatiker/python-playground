@@ -1,5 +1,4 @@
 from pprint import pprint, pformat
-from . import stack, queue
 
 # Vertex is a structure mapping an id to a set of neighbors and the weight
 # it costs to reach them.
@@ -21,20 +20,49 @@ class Vertex:
     def get_neighbors(self):
         return self.neighbors.keys()
 
-    def get_weight(self, id: str) -> int:
-        return self.neighbors[id]
+    def get_weight(self, name: str) -> int:
+        return self.neighbors[name]
 
-    def add_neighbor(self, id: str, weight: int = 0):
-        self.neighbors[id] = weight
+    def add_neighbor(self, name: str, weight: int = 0):
+        self.neighbors[name] = weight
+
+
+class Edge:
+
+    def __init__(self, from_id, to_id, weight = 0):
+        self.from_id = from_id
+        self.to_id = to_id
+        self.weight = weight
+
+    def __le__(self, other):
+        return self.weight <= other.weight
+
+    def __lt__(self, other):
+        return self.weight < other.weight
+
+    def __gt__(self, other):
+        return self.weight > other.weight
+
+    def __ge__(self, other):
+        return self.weight >= other.weight
+
+    def __eq__(self, other):
+        return self.weight == other.weight
+
+    def __str__(self):
+        return f"{{from_id={self.from_id}, to_id={self.to_id}, weight={self.weight}}}"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 # Graph is an undirected graph structure (bidirectional)
 # with optionally weighted edges.
 class Graph:
-    def __init__(self, vertices = None):
+    def __init__(self, vertices = None, is_directed = False):
         # Mappings of ids to Vertex objects
         self.vertices = vertices if vertices else {}
-        self.vertex_count = len(self.vertices)
+        self.is_directed = is_directed
 
     def __str__(self):
         return pformat(self.vertices)
@@ -47,88 +75,45 @@ class Graph:
         from_vertex: Vertex = self.vertices[from_id]
         from_vertex.add_neighbor(to_id, weight)
 
-        to_vertex: Vertex = self.vertices[to_id]
-        to_vertex.add_neighbor(from_id, weight)
+        if not self.is_directed:
+            to_vertex: Vertex = self.vertices[to_id]
+            to_vertex.add_neighbor(from_id, weight)
 
-    def add_vertex(self, id: str):
-        self.vertices[id] = Vertex(id)
+    def add_vertex(self, name: str):
+        self.vertices[name] = Vertex(name)
 
     def get_vertices(self):
         return self.vertices.keys()
 
     # Returns Vertex by id
-    def get_vertex(self, id):
-        if id in self.vertices:
-            return self.vertices[id]
+    def get_vertex(self, name):
+        if name in self.vertices:
+            return self.vertices[name]
         return None
 
-# --- Graph traversal algorithms ---
+class Cost:
 
-# Does a depth first traversal of a graph g
-def depth_first_iterative(g: Graph, start: str):
-    start_vertex: Vertex = g.get_vertex(start)
-    if start_vertex is None:
-        return
+    def __init__(self, weight: int, value):
+        self.weight = weight
+        self.value = value
 
-    visited = set()  # set of already-visited vertices
-    visit_stack = stack.Stack()
-    visit_stack.push(start_vertex)
-    while visit_stack.size() > 0:
+    def __le__(self, other):
+        return self.weight <= other.weight
 
-        # Pop the next vertex off the visit stack; visit it
-        current: Vertex = visit_stack.pop()
-        if current.get_id() not in visited:
-            print(current)
-            visited.add(current.get_id())
+    def __lt__(self, other):
+        return self.weight < other.weight
 
-            # Add all its unvisited neighbors the visit stack
-            for neighbor in current.get_neighbors():
-                if neighbor not in visited:
-                    visit_stack.push(g.get_vertex(neighbor))
+    def __gt__(self, other):
+        return self.weight > other.weight
 
-def depth_first_recursive(g: Graph, current: str, visited: set):
-    if current in visited or len(visited) == len(g.get_vertices()):
-        return
-    current_vertex: Vertex = g.get_vertex(current)
-    print(current_vertex)
-    visited.add(current)
-    for neighbor in current_vertex.get_neighbors():
-        if neighbor not in visited:
-            depth_first_recursive(g, neighbor, visited)
+    def __ge__(self, other):
+        return self.weight >= other.weight
 
-def breadth_first_iterative(g: Graph, start: str):
-    visited = set()
-    to_visit = queue.Queue()
-    to_visit.offer(start)
+    def __eq__(self, other):
+        return self.weight == other.weight
 
-    while to_visit.size() > 0:
-        current, _ = to_visit.poll()
-        if current not in visited:
-            current_vertex: Vertex = g.get_vertex(current)
-            print(current_vertex)
-            visited.add(current)
-            # Add all the unvisited neighbors to the queue
-            for neighbor in current_vertex.get_neighbors():
-                if neighbor not in visited:
-                    to_visit.offer(neighbor)
+    def __str__(self):
+        return f"{{weight={self.weight}, value={self.value}}}"
 
-def shortest_path(g: Graph, start: str):
-    infinity = 2**63 - 1
-    visited = []
-    unvisited = g.get_vertices()
-
-    # Shortest distances from start
-    distances = {}
-
-    # How we got to this from start
-    prev_vert = {}
-
-    for vertex in g.get_vertices():
-        if vertex == start:
-            distances[vertex] = 0
-        else:
-            distances[vertex] = infinity
-
-        # Still need to finish
-
-    return
+    def __repr__(self):
+        return self.__str__()

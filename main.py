@@ -1,32 +1,38 @@
-from datastructures import graph
+from datastructures import graph, class_schedule, minheap
+from datastructures.graph import Graph
+from algorithms.graphs.traversal import dfs, bfs, \
+    print_shortest_paths, shortest_paths, has_cycle
 
-def main():
+def graph_tests():
+    print("* Graph Traversal Tests *")
+    g = Graph(vertices=None, is_directed=True)
 
-    g = graph.Graph()
-
-    for vertex in ['A', 'B', 'C', 'D', 'E']:
+    for vertex in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
         g.add_vertex(vertex)
 
     for edge in [
-        ('A', 'B', 5),
-        ('A', 'C', 1),
-        ('B', 'C', 3),
+        ('A', 'B', 1),
+        ('A', 'C', 5),
         ('B', 'E', 2),
-        ('C', 'D', 4),
-        ('D', 'E', 7),
+        ('C', 'D', 1),
+        ('D', 'E', 3),
+        ('D', 'F', 1),
+        ('D', 'G', 5),
+        ('E', 'F', 2)
     ]:
         g.add_edge(edge[0], edge[1], weight=edge[2])
 
-    g.print()
+    dfs(g, start='A')
+    bfs(g, start='A')
 
-    print("---- Depth First Iterative ----")
-    graph.depth_first_iterative(g, 'A')
+    distances, prev_vert = shortest_paths(g, start='A')
+    print_shortest_paths('A', distances, prev_vert)
 
-    print("---- Depth First Recursive ----")
-    graph.depth_first_recursive(g, 'A', set())
+    has_cycle(g)
 
-    print("---- Breadth First Iterative ----")
-    graph.breadth_first_iterative(g, 'A')
+
+def main():
+    graph_tests()
 
 
 if __name__ == "__main__":

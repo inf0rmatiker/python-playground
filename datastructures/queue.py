@@ -4,6 +4,9 @@ class Queue:
     def __init__(self):
         self.array = []
 
+    def __len__(self):
+        return len(self.array)
+
     def size(self):
         return len(self.array)
 
